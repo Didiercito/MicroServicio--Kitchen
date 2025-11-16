@@ -6,20 +6,14 @@ class GetKitchenDetailsUseCase {
 
   async execute(kitchenId) {
     const kitchen = await this.kitchenRepository.findById(kitchenId);
-    if (!kitchen) {
-      throw new Error('Cocina no encontrada');
-    }
+    if (!kitchen) throw new Error("Cocina no encontrada");
 
-    let location = null;
-    if (kitchen.location_id) {
-      location = await this.locationRepository.findById(kitchen.location_id);
-    }
+    const location = kitchen.location_id
+      ? await this.locationRepository.findById(kitchen.location_id)
+      : null;
 
-    return {
-      kitchen,
-      location,
-    };
+    return { kitchen, location };
   }
 }
 
-module.exports = GetKitchenDetailsUseCase;
+module.exports = GetKitchenDetailsUseCase;  

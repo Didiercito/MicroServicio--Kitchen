@@ -8,7 +8,7 @@ class RabbitMQPublisher {
   }
 
   async connect() {
-    if (this.connection) return; // evitar reconexiones múltiples
+    if (this.connection) return;
     try {
       const url = process.env.RABBITMQ_URL;
       if (!url) throw new Error('❌ RABBITMQ_URL no está definida en .env');

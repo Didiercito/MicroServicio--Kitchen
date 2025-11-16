@@ -1,12 +1,22 @@
-const KitchenResponsible = require('../models/KitchenResponsibleModel');
+const KitchenResponsibleModel = require('../models/KitchenResponsibleModel');
+const Responsible = require('../../../domain/entities/KitchenResponsible');
 
 class SequelizeKitchenResponsibleRepository {
-  async create(data) {
-    return await KitchenResponsible.create(data);
+  _toDomain(model) {
+    if (!model) return null;
+    return new Responsible(model.toJSON());
   }
 
-  async findByKitchenId(kitchenId) {
-    return await KitchenResponsible.findOne({ where: { kitchen_id: kitchenId } });
+  async create(data) {
+    const responsible = await KitchenResponsibleModel.create(data);
+    return this._toDomain(responsible);
+  }
+
+  async findByKitchenId(id) {
+    const responsible = await KitchenResponsibleModel.findOne({
+      where: { kitchen_id: id }
+    });
+    return this._toDomain(responsible);
   }
 }
 

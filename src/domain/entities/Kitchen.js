@@ -9,11 +9,13 @@ class Kitchen {
     contact_email,
     image_url = null,
     registration_date,
-    approval_status = 'pending', 
+    approval_status = 'pending',
     approved_by = null,
     approval_date = null,
     rejection_reason = null,
-    is_active = false
+    is_active = false,
+    responsible = null,
+    location = null
   }) {
     this.id = id;
     this.name = name;
@@ -23,12 +25,15 @@ class Kitchen {
     this.contact_phone = contact_phone;
     this.contact_email = contact_email;
     this.image_url = image_url;
-    this.registration_date = registration_date || new Date();
+    this.registration_date = registration_date;
     this.approval_status = approval_status;
     this.approved_by = approved_by;
     this.approval_date = approval_date;
     this.rejection_reason = rejection_reason;
     this.is_active = is_active;
+
+    this.responsible = responsible;
+    this.location = location;
   }
 }
 

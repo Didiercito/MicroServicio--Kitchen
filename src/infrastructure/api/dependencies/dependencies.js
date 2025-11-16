@@ -19,125 +19,37 @@ const kitchenRepository = new SequelizeKitchenRepository();
 const locationRepository = new SequelizeLocationRepository();
 const responsibleRepository = new SequelizeKitchenResponsibleRepository();
 
-const requestKitchenUseCase = new RequestKitchenUseCase(
-  kitchenRepository,
-  locationRepository,
-  responsibleRepository,
-  RabbitMQPublisher
-);
-
-const approveKitchenUseCase = new ApproveKitchenUseCase(
-  kitchenRepository,
-  responsibleRepository,
-  RabbitMQPublisher
-);
-
-const rejectKitchenUseCase = new RejectKitchenUseCase(
-  kitchenRepository,
-  RabbitMQPublisher
-);
-
-const getPendingKitchensUseCase = new GetPendingKitchensUseCase(kitchenRepository);
-const getApprovedKitchensUseCase = new GetApprovedKitchensUseCase(kitchenRepository);
-const getRejectedKitchensUseCase = new GetRejectedKitchensUseCase(kitchenRepository);
-
-const getNearbyKitchensUseCase = new GetNearbyKitchensUseCase(
-  kitchenRepository,
-  locationRepository
-);
-
-const getKitchenDetailsUseCase = new GetKitchenDetailsUseCase(
-  kitchenRepository,
-  locationRepository,
-  responsibleRepository
-);
-
 module.exports = {
-  requestKitchen: async (req, res) => {
-    try {
-      const result = await requestKitchenUseCase.execute(req.body);
-      res.status(201).json({ success: true, data: result });
-    } catch (err) {
-      res.status(err.http_status || 500).json({
-        success: false,
-        message: "Error al registrar cocina",
-        error: err.message
-      });
-    }
-  },
+  requestKitchenUseCase: new RequestKitchenUseCase(
+    kitchenRepository,
+    locationRepository,
+    responsibleRepository,
+    RabbitMQPublisher
+  ),
 
-  approveKitchen: async (req, res) => {
-    try {
-      const result = await approveKitchenUseCase.execute(req.params.id);
-      res.status(200).json(result);
-    } catch (err) {
-      res.status(err.http_status || 500).json({
-        success: false,
-        message: "Error al aprobar cocina",
-        error: err.message
-      });
-    }
-  },
+  approveKitchenUseCase: new ApproveKitchenUseCase(
+    kitchenRepository,
+    responsibleRepository,
+    RabbitMQPublisher
+  ),
 
-  rejectKitchen: async (req, res) => {
-    try {
-      const result = await rejectKitchenUseCase.execute(req.params.id, req.body.reason);
-      res.status(200).json(result);
-    } catch (err) {
-      res.status(err.http_status || 500).json({
-        success: false,
-        message: "Error al rechazar cocina",
-        error: err.message
-      });
-    }
-  },
+  rejectKitchenUseCase: new RejectKitchenUseCase(
+    kitchenRepository,
+    RabbitMQPublisher
+  ),
 
-  getPendingKitchens: async (_req, res) => {
-    try {
-      const data = await getPendingKitchensUseCase.execute();
-      res.status(200).json({ success: true, data });
-    } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
-    }
-  },
+  getPendingKitchensUseCase: new GetPendingKitchensUseCase(kitchenRepository),
+  getApprovedKitchensUseCase: new GetApprovedKitchensUseCase(kitchenRepository),
+  getRejectedKitchensUseCase: new GetRejectedKitchensUseCase(kitchenRepository),
 
-  getApprovedKitchens: async (_req, res) => {
-    try {
-      const data = await getApprovedKitchensUseCase.execute();
-      res.status(200).json({ success: true, data });
-    } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
-    }
-  },
+  getNearbyKitchensUseCase: new GetNearbyKitchensUseCase(
+    kitchenRepository,
+    locationRepository
+  ),
 
-  getRejectedKitchens: async (_req, res) => {
-    try {
-      const data = await getRejectedKitchensUseCase.execute();
-      res.status(200).json({ success: true, data });
-    } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
-    }
-  },
-
-  getNearbyKitchens: async (req, res) => {
-    try {
-      const data = await getNearbyKitchensUseCase.execute(req.query);
-      res.status(200).json({ success: true, data });
-    } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
-    }
-  },
-
-  getKitchenDetails: async (req, res) => {
-    try {
-      const data = await getKitchenDetailsUseCase.execute(req.params.id);
-      res.status(200).json({ success: true, data });
-    } catch (err) {
-      res.status(err.http_status || 500).json({
-        success: false,
-        message: "Error al obtener detalles de la cocina",
-        error: err.message
-      });
-    }
-  }
+  getKitchenDetailsUseCase: new GetKitchenDetailsUseCase(
+    kitchenRepository,
+    locationRepository,
+    responsibleRepository
+  )
 };
