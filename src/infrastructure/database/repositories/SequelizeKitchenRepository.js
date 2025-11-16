@@ -1,95 +1,118 @@
-const Kitchen = require('../models/KitchenModel');
-const Location = require('../models/LocationModel');
-const KitchenResponsible = require('../models/KitchenResponsibleModel');
+const KitchenModel = require('../models/KitchenModel');
+const KitchenResponsibleModel = require('../models/KitchenResponsibleModel');
+const LocationModel = require('../models/LocationModel');
+
+const Kitchen = require('../../../domain/entities/Kitchen');
 
 class SequelizeKitchenRepository {
 
-  // =======================
-  // Obtener cocina por ID
-  // =======================
+  _toDomain(model) {
+    if (!model) return null;
+
+    const json = model.toJSON();
+
+    return new Kitchen({
+      ...json,
+      responsible: json.responsible || null,
+      location: json.location || null
+    });
+  }
+
+  async create(data) {
+    const newKitchen = await KitchenModel.create({
+      name: data.name,
+      description: data.description,
+      owner_id: data.owner_id || 0,
+      location_id: data.location_id,
+      contact_phone: data.contact_phone,
+      contact_email: data.contact_email,
+      image_url: data.image_url || null,
+      approval_status: data.approval_status || 'pending',
+      is_active: false
+    });
+
+    return this._toDomain(newKitchen);
+  }
+
   async findById(id) {
-    return await Kitchen.findOne({
+    const result = await KitchenModel.findOne({
       where: { id },
       include: [
-        {
-          model: KitchenResponsible,
-          as: 'responsible',
-          attributes: [
-            'names',
-            'first_last_name',
-            'second_last_name',
-            'email',
-            'phone_number',
-            'password_hash'
-          ]
-        },
-        {
-          model: Location,
-          as: 'location'
-        }
+        { model: KitchenResponsibleModel, as: 'responsible' },
+        { model: LocationModel, as: 'location' }
       ]
     });
+
+    return this._toDomain(result);
   }
 
-  // =======================
-  // Crear cocina
-  // =======================
-  async create(data) {
-    return await Kitchen.create(data);
+  async update(id, data) {
+    await KitchenModel.update(data, { where: { id } });
+    return this.findById(id);
   }
 
-  // =======================
-  // Guardar cambios
-  // =======================
-  async save(instance) {
-    return await instance.save();
-  }
-
-  // =======================
-  // PENDIENTES
-  // =======================
   async findPending() {
-    return await Kitchen.findAll({
+    const result = await KitchenModel.findAll({
       where: { approval_status: 'pending' },
       include: [
-        {
-          model: KitchenResponsible,
-          as: 'responsible',
-          attributes: [
-            'names',
-            'first_last_name',
-            'second_last_name',
-            'email',
-            'phone_number'
-          ]
-        },
-        {
-          model: Location,
-          as: 'location'
-        }
-      ],
-      order: [['id', 'ASC']]
+        { model: KitchenResponsibleModel, as: 'responsible' },
+        { model: LocationModel, as: 'location' }
+      ]
     });
+
+    return result.map(r => this._toDomain(r));
   }
 
-  // =======================
-  // APROBADAS
-  // =======================
   async findApproved() {
-    return await Kitchen.findAll({
+    const result = await KitchenModel.findAll({
       where: { approval_status: 'approved' },
-      include: [{ model: Location, as: 'location' }]
+      include: [
+        { model: KitchenResponsibleModel, as: 'responsible' },
+        { model: LocationModel, as: 'location' }
+      ]
     });
+
+    return result.map(r => this._toDomain(r));
   }
 
-  // =======================
-  // RECHAZADAS
-  // =======================
   async findRejected() {
-    return await Kitchen.findAll({
+    const result = await KitchenModel.findAll({
       where: { approval_status: 'rejected' },
-      include: [{ model: Location, as: 'location' }]
+      include: [
+        { model: KitchenResponsibleModel, as: 'responsible' },
+        { model: LocationModel, as: 'location' }
+      ]
     });
+
+    return result.map(r => this._toDomain(r));
+  }
+
+  async findByStatus(status) {
+    const result = await KitchenModel.findAll({
+      where: { approval_status: status },
+      include: [
+        { model: KitchenResponsibleModel, as: 'responsible' },
+        { model: LocationModel, as: 'location' }
+      ]
+    });
+
+    return result.map(r => this._toDomain(r));
+  }
+
+  async findByLocationIds(ids) {
+    const result = await KitchenModel.findAll({
+      where: {
+        location_id: ids,
+        approval_status: 'approved',
+        is_active: true
+      },
+      include: [
+        { model: KitchenResponsibleModel, as: 'responsible' },
+        { model: LocationModel, as: 'location' }
+      ]
+    });
+
+    return result.map(r => this._toDomain(r));
   }
 }
 

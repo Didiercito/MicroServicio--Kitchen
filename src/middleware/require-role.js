@@ -21,11 +21,20 @@ module.exports = function requireRole(requiredRole) {
       if (!roles.includes(requiredRole)) {
         return res.status(403).json({
           success: false,
-          message: "Forbidden: You don't have permission"
+          message: "Forbidden: You don't have permission",
+          requiredRole,
+          userRoles: roles
         });
       }
 
-      req.user = decoded;
+      req.user = {
+        id: decoded.userId,
+        email: decoded.email,
+        roles,
+        stateId: decoded.stateId ?? null,
+        municipalityId: decoded.municipalityId ?? null
+      };
+
       next();
 
     } catch (error) {
