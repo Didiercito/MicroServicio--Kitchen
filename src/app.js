@@ -3,7 +3,6 @@ const cors = require('cors');
 const kitchenRoutes = require('./infrastructure/api/routes/KitchenRoutes');
 
 const app = express();
-
 app.use(cors({ origin: '*' }));
 
 app.use(express.json());

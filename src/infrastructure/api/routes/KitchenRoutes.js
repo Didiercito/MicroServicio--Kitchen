@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const requireAuth = require("../../../middleware/require-auth");
 const requireRole = require("../../../middleware/require-role");
 const controller = require('../controllers/KitchenController');
